@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Upload MRI | Brain Tumor Detection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #eef2f9; }
+    .hero { background: linear-gradient(135deg, #0d6efd, #5b3df5); color: #fff;
+            text-align: center; padding: 28px 10px; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+    .hero h1 { font-weight: 800; margin: 0; letter-spacing: 1px; font-size: 2.3rem; }
+    .hero p { margin: 6px 0 0; opacity: .9; }
+    .card { border: 0; border-radius: 16px; box-shadow: 0 8px 24px rgba(20,30,80,.08); }
+    .drop { border: 2px dashed #9db8ee; border-radius: 14px; padding: 36px 16px;
+            text-align: center; background: #f7faff; cursor: pointer; transition: .2s; }
+    .drop:hover, .drop.over { background: #e8f0ff; border-color: #0d6efd; }
+    .drop .icon { font-size: 2.6rem; }
+    #preview { display: none; max-height: 300px; max-width: 100%; border-radius: 10px;
+               background: #000; margin: 14px auto 0; }
+    .step { display: flex; gap: 12px; margin-bottom: 10px; }
+    .step .n { background: #0d6efd; color: #fff; width: 28px; height: 28px; border-radius: 50%;
+               display: flex; align-items: center; justify-content: center; font-weight: 700;
+               flex: 0 0 28px; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>BRAIN TUMOR DETECTION</h1>
+  <p>Upload an MRI scan for AI-assisted classification</p>
+</div>
+
+<div class="container my-4" style="max-width: 900px;">
+  <div class="row g-4">
+
+    <div class="col-lg-7">
+      <div class="card p-4">
+        <h4 class="mb-3">Upload your scan</h4>
+
+        <form id="form" action="/uimg" method="POST" enctype="multipart/form-data">
+          <label class="drop w-100" id="drop" for="file">
+            <div class="icon">🧠</div>
+            <div class="fw-bold mt-2" id="label">Click to choose an MRI image, or drag it here</div>
+            <small class="text-muted">PNG, JPG or JPEG, up to 16 MB</small>
+            <input type="file" id="file" name="file" accept="image/png,image/jpeg" hidden required>
+          </label>
+          <div class="text-center"><img id="preview" alt="Preview"></div>
+
+          <button id="btn" type="submit" class="btn btn-primary btn-lg w-100 mt-4" disabled>
+            Analyze scan
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card p-4 h-100">
+        <h5 class="mb-3">For best results</h5>
+        <div class="step"><div class="n">1</div><div>Use a <strong>T1-weighted contrast-enhanced</strong> brain MRI slice.</div></div>
+        <div class="step"><div class="n">2</div><div>Upload a single slice as an image, not a photo of a screen or a printout.</div></div>
+        <div class="step"><div class="n">3</div><div>Slices that clearly show the tumor work best.</div></div>
+        <hr>
+        <small class="text-muted">
+          Educational project, not a medical diagnosis. The model only knows three tumor types
+          (meningioma, glioma, pituitary) and cannot detect "no tumor".
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="/" class="btn btn-outline-secondary">Back to home</a>
+  </div>
+</div>
+
+<script>
+  const file = document.getElementById('file'), drop = document.getElementById('drop'),
+        preview = document.getElementById('preview'), label = document.getElementById('label'),
+        btn = document.getElementById('btn'), form = document.getElementById('form');
+
+  function show() {
+    const f = file.files[0];
+    if (!f) return;
+    label.textContent = f.name;
+    preview.src = URL.createObjectURL(f);
+    preview.style.display = 'block';
+    btn.disabled = false;
+  }
+  file.addEventListener('change', show);
+
+  ['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => {
+    ev.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => {
+    ev.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', ev => { file.files = ev.dataTransfer.files; show(); });
+
+  form.addEventListener('submit', () => {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+  });
+</script>
+</body>
+</html>

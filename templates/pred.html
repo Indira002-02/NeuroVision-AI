@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Result | Brain Tumor Detection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #eef2f9; }
+    .hero { background: linear-gradient(135deg, #0d6efd, #5b3df5); color: #fff;
+            text-align: center; padding: 28px 10px; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+    .hero h1 { font-weight: 800; margin: 0; letter-spacing: 1px; font-size: 2.3rem; }
+    .hero p { margin: 6px 0 0; opacity: .9; }
+    .card { border: 0; border-radius: 16px; box-shadow: 0 8px 24px rgba(20,30,80,.08); }
+    .scan { width: 100%; max-height: 430px; object-fit: contain; background: #000; border-radius: 12px; }
+    .result-name { font-size: 2.4rem; font-weight: 800; color: #0d6efd; line-height: 1.1; }
+    .conf-ring { width: 120px; height: 120px; border-radius: 50%; display: flex; flex-direction: column;
+                 align-items: center; justify-content: center; margin: auto; font-weight: 800; font-size: 1.3rem;;
+                 background: conic-gradient(#0d6efd calc(var(--p) * 1%), #dfe6f3 0); position: relative; }
+    .conf-ring::before { content: ""; position: absolute; inset: 11px; background: #fff; border-radius: 50%; }
+    .conf-ring span, .conf-ring small { position: relative; }
+    .conf-ring small { font-size: .7rem; font-weight: 600; color: #6c757d; }
+    .progress { height: 20px; border-radius: 10px; }
+    .section-title { font-weight: 700; margin-bottom: 10px; }
+    .pill { display: inline-block; background: #e8f0ff; color: #0b4fc4; border-radius: 20px;
+            padding: 5px 13px; margin: 3px 4px 3px 0; font-size: .9rem; }
+    .stat { text-align: center; padding: 10px; }
+    .stat .num { font-size: 1.6rem; font-weight: 800; color: #0d6efd; }
+    .stat .lbl { font-size: .8rem; color: #6c757d; }
+    @media print { .no-print { display: none; } body { background: #fff; } }
+  </style>
+</head>
+<body>
+
+{# Details per tumor type #}
+{% set DETAILS = {
+  'Meningioma': {
+    'overview': 'Meningiomas grow from the meninges, the thin layers of tissue that cover the brain and spinal cord. They are the most common primary brain tumors in adults. Most are benign (non-cancerous) and slow-growing, but they can cause problems by pressing on nearby brain tissue.',
+    'where': 'Surface of the brain, along the skull base, or near the spinal cord.',
+    'symptoms': ['Headaches that slowly worsen', 'Vision changes or double vision', 'Seizures', 'Weakness in an arm or leg', 'Hearing loss or ringing in the ears', 'Memory or personality changes', 'Loss of smell'],
+    'management': ['Many small, slow-growing ones are watched with regular follow-up MRI scans.', 'Surgery to remove the tumor is the main treatment when it causes symptoms or keeps growing.', 'Radiotherapy, including focused radiosurgery, is used when surgery is not possible or not complete.'],
+    'specialist': 'neurosurgeon or neuro-oncologist'
+  },
+  'Glioma': {
+    'overview': 'Gliomas arise from glial cells, the supporting cells of the brain. The group covers a wide range, from slow-growing low-grade tumors to fast-growing, aggressive ones such as glioblastoma. Which type it is can only be decided from tissue analysis, not from a scan alone.',
+    'where': 'Inside the brain tissue itself, most often in the cerebral hemispheres.',
+    'symptoms': ['Persistent or worsening headaches', 'Seizures', 'Nausea and vomiting', 'Difficulty with speech or finding words', 'Confusion, memory or personality changes', 'Weakness or numbness on one side', 'Vision problems'],
+    'management': ['Treatment depends on the exact type, grade and genetic features, confirmed by biopsy or surgery.', 'Surgery to remove as much of the tumor as is safely possible is usually the first step.', 'Radiotherapy and chemotherapy are often combined with surgery, and newer targeted therapies are being studied.'],
+    'specialist': 'neurosurgeon and neuro-oncologist'
+  },
+  'Pituitary': {
+    'overview': 'Pituitary tumors form in the pituitary gland, a small gland at the base of the brain that controls many hormones. Most are benign adenomas. They can matter because they press on nearby structures such as the optic nerves, or because they produce too much of a hormone.',
+    'where': 'Base of the brain, in a bony hollow behind the nose, close to the optic nerves.',
+    'symptoms': ['Headaches', 'Loss of peripheral (side) vision', 'Fatigue and weakness', 'Irregular periods or milk discharge unrelated to pregnancy', 'Unexplained weight change or changes in growth of hands and feet', 'Sexual dysfunction or reduced fertility'],
+    'management': ['Blood tests for hormone levels and an eye examination are a key part of the work-up.', 'Some types, such as prolactinomas, are treated mainly with medication.', 'Surgery, usually through the nose (transsphenoidal), or radiotherapy may be used for larger or hormone-producing tumors.'],
+    'specialist': 'endocrinologist and neurosurgeon'
+  }
+} %}
+{% set D = DETAILS[result] %}
+
+<div class="hero">
+  <h1>BRAIN TUMOR DETECTION</h1>
+  <p>AI-assisted MRI classification report</p>
+</div>
+
+<div class="container my-4" style="max-width: 1100px;">
+
+  <div class="row g-4">
+    <!-- Scan -->
+    <div class="col-lg-5">
+      <div class="card p-3 h-100">
+        <div class="section-title">Uploaded scan</div>
+        <img class="scan" src="{{ image }}" alt="Uploaded MRI scan">
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="col-lg-7">
+      <div class="card p-4 h-100">
+        <div class="row align-items-center">
+          <div class="col-sm-8">
+            <div class="text-muted">The model predicts</div>
+            <div class="result-name">{{ result }}</div>
+            <div class="text-muted mt-1">tumor type</div>
+          </div>
+          <div class="col-sm-4 mt-3 mt-sm-0">
+            <div class="conf-ring" style="--p: {{ confidence }}">
+              <span>{{ confidence }}%</span><small>confidence</small>
+            </div>
+          </div>
+        </div>
+
+        {% if confidence < 80 %}
+        <div class="alert alert-warning mt-3 mb-0">
+          <strong>Low confidence.</strong> The model is unsure about this scan, so treat the result with extra caution.
+        </div>
+        {% elif confidence >= 95 %}
+        <div class="alert alert-info mt-3 mb-0">
+          High confidence, but the model can still be wrong. Only a specialist can confirm a diagnosis.
+        </div>
+        {% endif %}
+
+        <div class="section-title mt-4">Probability for each type</div>
+        {% for name, p in probs.items() %}
+        <div class="mb-2">
+          <div class="d-flex justify-content-between">
+            <span>{{ name }}</span><strong>{{ p }}%</strong>
+          </div>
+          <div class="progress">
+            <div class="progress-bar {% if name == result %}bg-primary{% else %}bg-secondary{% endif %}"
+                 style="width: {{ p }}%"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- About the tumor -->
+  <div class="card p-4 mt-4">
+    <div class="section-title fs-4">About {{ result }} tumors</div>
+    <p>{{ D.overview }}</p>
+    <p class="mb-0"><strong>Typical location:</strong> {{ D.where }}</p>
+  </div>
+
+  <div class="row g-4 mt-0">
+    <div class="col-md-6">
+      <div class="card p-4 h-100">
+        <div class="section-title">Common symptoms</div>
+        <div>
+          {% for s in D.symptoms %}<span class="pill">{{ s }}</span>{% endfor %}
+        </div>
+        <small class="text-muted d-block mt-3">General information. Symptoms vary a lot between people.</small>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card p-4 h-100">
+        <div class="section-title">How it is usually managed</div>
+        <ul class="mb-0">
+          {% for m in D.management %}<li class="mb-2">{{ m }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next steps -->
+  <div class="card p-4 mt-4">
+    <div class="section-title fs-5">What to do next</div>
+    <ol class="mb-0">
+      <li class="mb-2">Do not rely on this result. Show the original scan and report to a doctor.</li>
+      <li class="mb-2">A <strong>{{ D.specialist }}</strong> is the kind of specialist who usually handles this.</li>
+      <li class="mb-2">A diagnosis normally needs a radiologist's review of the full scan, and sometimes a biopsy.</li>
+      <li>If you have severe headaches, seizures, sudden vision loss or weakness, seek medical care promptly.</li>
+    </ol>
+  </div>
+
+  <!-- About the model -->
+  <div class="card p-4 mt-4">
+    <div class="section-title fs-5">About this model</div>
+    <div class="row text-center mb-3">
+      <div class="col-6 col-md-3 stat"><div class="num">93.4%</div><div class="lbl">Test accuracy</div></div>
+      <div class="col-6 col-md-3 stat"><div class="num">3,064</div><div class="lbl">MRI slices</div></div>
+      <div class="col-6 col-md-3 stat"><div class="num">233</div><div class="lbl">Patients</div></div>
+      <div class="col-6 col-md-3 stat"><div class="num">ResNet50</div><div class="lbl">Architecture</div></div>
+    </div>
+    <ul class="mb-0">
+      <li class="mb-1">Trained by transfer learning on T1-weighted contrast-enhanced MRI slices (Jun Cheng dataset).</li>
+      <li class="mb-1">Tested on patients it had never seen. By type: pituitary 99.7%, glioma 92.8%, meningioma 82.6% (F1 scores). Meningioma and glioma are the ones it mixes up most often.</li>
+      <li class="mb-1">It always chooses one of three tumor types. It cannot say "no tumor", and it can give a confident answer for an image that is not a suitable brain MRI.</li>
+      <li>It was trained on one dataset and one scan type, so it may perform worse on scans from other machines or hospitals.</li>
+    </ul>
+  </div>
+
+  <div class="alert alert-danger mt-4">
+    <strong>Medical disclaimer:</strong> This tool is for education and research only. It is not a medical device and
+    cannot diagnose any condition. Always consult a qualified doctor.
+  </div>
+
+  <div class="text-center my-4 no-print">
+    <a href="/uimg" class="btn btn-primary btn-lg me-2">Analyze another scan</a>
+    <button class="btn btn-outline-primary btn-lg me-2" onclick="window.print()">Print report</button>
+    <a href="/" class="btn btn-outline-secondary btn-lg">Home</a>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain Tumor Detection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #eef2f9; }
+    .hero { background: linear-gradient(135deg, #0d6efd, #5b3df5); color: #fff;
+            text-align: center; padding: 56px 16px 64px; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+    .hero h1 { font-weight: 800; letter-spacing: 1px; font-size: 2.8rem; margin: 0; }
+    .hero p { font-size: 1.2rem; opacity: .92; margin: 10px auto 24px; max-width: 640px; }
+    .card { border: 0; border-radius: 16px; box-shadow: 0 8px 24px rgba(20,30,80,.08); }
+    .section-title { font-weight: 700; margin-bottom: 12px; }
+    .pill { display: inline-block; background: #e8f0ff; color: #0b4fc4; border-radius: 20px;
+            padding: 5px 13px; margin: 3px 4px 3px 0; font-size: .92rem; }
+    .symptom { display: flex; gap: 10px; margin-bottom: 8px; }
+    .symptom::before { content: "•"; color: #0d6efd; font-weight: 800; }
+    .feature { text-align: center; padding: 8px; }
+    .feature .icon { font-size: 2rem; }
+    .scan-img { max-height: 300px; object-fit: contain; }
+    footer { text-align: center; padding: 20px 10px 30px; color: #495057; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>BRAIN TUMOR DETECTION</h1>
+  <p>Upload a brain MRI scan and get an AI-assisted classification into meningioma, glioma or pituitary tumor, with a detailed report.</p>
+  <a href="{{ url_for('uimg') }}" class="btn btn-light btn-lg fw-bold px-5">Detect Brain Tumor</a>
+</div>
+
+<div class="container my-4" style="max-width: 1000px; margin-top: -30px;">
+
+  <!-- What is a brain tumor -->
+  <div class="card p-4 mb-4">
+    <div class="row align-items-center g-4">
+      <div class="col-md-4 text-center">
+        <img src="{{ url_for('static', filename='b.jpg') }}" alt="What is a brain tumor"
+             class="img-fluid rounded scan-img">
+      </div>
+      <div class="col-md-8">
+        <div class="section-title fs-4">What is a brain tumor?</div>
+        <p class="mb-2">
+          A brain tumor is a mass or growth of abnormal cells in your brain. Many different types of brain
+          tumors exist. Some brain tumors are noncancerous (benign), and some are cancerous (malignant).
+        </p>
+        <p class="mb-2">
+          Brain tumors can begin in your brain (primary brain tumors), or cancer can begin in other parts of
+          your body and spread to your brain as secondary (metastatic) brain tumors.
+        </p>
+        <p class="mb-0">
+          How quickly a brain tumor grows can vary greatly. The growth rate as well as the location of a
+          brain tumor determines how it will affect the function of your nervous system.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Types and symptoms -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card p-4 h-100">
+        <div class="section-title text-info">Types</div>
+        <div>
+          {% for t in ['Acoustic neuroma', 'Astrocytoma', 'Brain metastases', 'Choroid plexus carcinoma',
+                       'Craniopharyngioma', 'Embryonal tumors', 'Ependymoma', 'Glioblastoma', 'Glioma',
+                       'Medulloblastoma', 'Meningioma', 'Oligodendroglioma', 'Pediatric brain tumors',
+                       'Pineoblastoma', 'Pituitary tumors'] %}
+          <span class="pill">{{ t }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card p-4 h-100">
+        <div class="section-title text-info">Symptoms</div>
+        {% for s in ['Headaches',
+                     'Seizures or convulsions',
+                     'Difficulty thinking, speaking or finding words',
+                     'Personality or behavior changes',
+                     'Weakness, numbness or paralysis in one part or one side of the body',
+                     'Loss of balance, dizziness or unsteadiness',
+                     'Loss of hearing',
+                     'Vision changes'] %}
+        <div class="symptom">{{ s }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="card p-4 mb-4">
+    <div class="section-title fs-4 text-center">How it works</div>
+    <div class="row g-3 mt-1">
+      <div class="col-md-4 feature">
+        <div class="icon">📤</div>
+        <div class="fw-bold mt-1">1. Upload</div>
+        <div class="text-muted">Choose a brain MRI slice (PNG or JPG).</div>
+      </div>
+      <div class="col-md-4 feature">
+        <div class="icon">🧠</div>
+        <div class="fw-bold mt-1">2. Analyze</div>
+        <div class="text-muted">A ResNet50 deep learning model classifies the scan.</div>
+      </div>
+      <div class="col-md-4 feature">
+        <div class="icon">📄</div>
+        <div class="fw-bold mt-1">3. Read the report</div>
+        <div class="text-muted">See the predicted type, confidence and general information.</div>
+      </div>
+    </div>
+    <div class="text-center mt-4">
+      <a href="{{ url_for('uimg') }}" class="btn btn-primary btn-lg px-5">Detect Brain Tumor</a>
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <strong>Medical disclaimer:</strong> This tool is for education and research only. It is not a medical
+    device and cannot diagnose any condition. Always consult a qualified doctor.
+  </div>
+</div>
+
+<footer>
+  <div class="fw-bold">Developed by Indira</div>
+  <small class="text-muted">Based on neuralBlack by Akshay Kumaar M</small>
+</footer>
+
+</body>
+</html>
